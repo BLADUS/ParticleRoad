@@ -24,16 +24,18 @@ circle_color = WHITE
 # Параметры частиц
 particle_radius = 10
 
-# Переменные для движения частиц
-step_count = 0
-num_particles = 1  # Начальное количество частиц
-angles = [0] * num_particles  # Начальные углы для движения частиц
-particle_colors = [pygame.Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for _ in
-                   range(num_particles)]  # Генерация случайных цветов для частиц
+# Всплывающее окно для ввода количества частиц
+num_particles = int(input("Введите количество частиц: "))
 
-intensity_values = []  # Список для хранения значений интенсивности
-average_moves_values = []  # Список для хранения средних перемещений
-average_speed_values = []  # Список для хранения средних скоростей
+collided = [False] * num_particles
+
+# Обнуление параметров
+step_count = 0
+angles = [0] * num_particles
+particle_colors = [pygame.Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for _ in range(num_particles)]
+intensity_values = []
+average_moves_values = []
+average_speed_values = []
 
 clock = pygame.time.Clock()
 
@@ -131,12 +133,11 @@ while not done:
         pygame.draw.circle(screen, particle_colors[i], (particle_x, particle_y), particle_radius)
 
         # Проверка достижения конца окружности
-        if angles[i] >= 2 * math.pi:
-            angles[i] = 0
+        if angles[i] >= 2 * math.pi * (num_particles - 1) / num_particles:
+            angles[i] = 2 * math.pi * (num_particles - 1) / num_particles
             particle_colors[i] = pygame.Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            num_particles -= 1
 
-        # Отрисовка счетчика выполненных шагов и среднего количества перемещений
+    # Отрисовка счетчика выполненных шагов и среднего количества перемещений
     draw_text(screen, "Шаги: " + str(step_count), (10, 10))
     draw_text(screen, "Среднее перемещений: " + str(calculate_average_moves()), (10, 40))
     draw_text(screen, "Средняя скорость: " + str(calculate_average_speed()), (10, 70))
@@ -145,48 +146,15 @@ while not done:
     pygame.display.flip()
 
     for i in range(num_particles):
-        if random.random() < 0.6:
-            angles[i] += 0.05  # Изменение углов движения
+        if random.random() < 0.6:  # 60% шанс перемещения на следующую позицию
+            angles[i] += 0.05
 
     step_count += 1
 
-    if num_particles == 0:
+    # Проверка завершения программы
+    if angles[num_particles - 1] >= 2 * math.pi * (num_particles - 1) / num_particles:
         done = True
-
-    intensity_values.append(calculate_intensity())
-    average_moves_values.append(calculate_average_moves())
-    average_speed_values.append(calculate_average_speed())
 
     clock.tick(60)
 
-print("Частицы завершили полный оборот!")
-print("Общее количество шагов:", step_count)
-
-# Отображение графика интенсивности
-plt.figure(figsize=(8, 4))
-plt.subplot(1, 2, 1)
-plt.plot(range(len(intensity_values)), intensity_values)
-plt.xlabel('Шаги')
-plt.ylabel('Интенсивность')
-plt.title('График интенсивности')
-
-# Отображение графика средних перемещений
-plt.subplot(1, 2, 2)
-plt.plot(range(len(average_moves_values)), average_moves_values)
-plt.xlabel('Шаги')
-plt.ylabel('Средние перемещения')
-plt.title('График средних перемещений')
-
-plt.tight_layout()
-plt.show()
-
-# Отображение графика средней скорости
-plt.figure()
-plt.plot(range(len(average_speed_values)), average_speed_values)
-plt.xlabel('Шаги')
-plt.ylabel('Средняя скорость')
-plt.title('График средней скорости')
-plt.show()
-
 pygame.quit()
-sys.exit()
