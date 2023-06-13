@@ -12,7 +12,7 @@ WHITE = (255, 255, 255)
 pygame.init()
 
 # Настройка окна
-window_size = (400, 400)
+window_size = (1920, 1080)
 screen = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Движение частиц")
 
@@ -107,6 +107,35 @@ def draw_text(surface, text, pos):
     surface.blit(text_surface, pos)
 
 
+def draw_graphs():
+    # График интенсивности
+    plt.figure()
+    plt.plot(intensity_values, marker='o')
+    plt.xlabel("Прогон")
+    plt.ylabel("Интенсивность")
+    plt.title("Интенсивность в зависимости от количества прогонов")
+    plt.grid(True)
+    plt.show()
+
+    # График среднего количества перемещений
+    plt.figure()
+    plt.plot(average_moves_values, marker='o')
+    plt.xlabel("Прогон")
+    plt.ylabel("Среднее перемещений")
+    plt.title("Среднее перемещений в зависимости от количества прогонов")
+    plt.grid(True)
+    plt.show()
+
+    # График средней скорости
+    plt.figure()
+    plt.plot(average_speed_values, marker='o')
+    plt.xlabel("Прогон")
+    plt.ylabel("Средняя скорость")
+    plt.title("Средняя скорость в зависимости от количества прогонов")
+    plt.grid(True)
+    plt.show()
+
+
 done = False
 while not done:
     for event in pygame.event.get():
@@ -151,6 +180,11 @@ while not done:
 
     step_count += 1
 
+    # Сохранение значений для построения графиков
+    intensity_values.append(calculate_intensity())
+    average_moves_values.append(calculate_average_moves())
+    average_speed_values.append(calculate_average_speed())
+
     # Проверка завершения программы
     if angles[num_particles - 1] >= 2 * math.pi * (num_particles - 1) / num_particles:
         done = True
@@ -158,3 +192,7 @@ while not done:
     clock.tick(60)
 
 pygame.quit()
+
+# Построение графиков
+draw_graphs()
+
